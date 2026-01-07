@@ -1,16 +1,5 @@
-# Node.js template
+# Sonic Robo Blast 2 - Web Relay Server
 
-This is a Node.js project.
+This server is used to help SRB2Web connect to other player's netgames and help host webgames.
 
-Add your [configuration](https://codesandbox.io/docs/projects/learn/setting-up/tasks) to optimize it for [CodeSandbox](https://codesandbox.io/p/dashboard).
-
-## Resources
-
-- [CodeSandbox — Docs](https://codesandbox.io/docs/learn)
-- [CodeSandbox — Discord](https://discord.gg/Ggarp3pX5H)
-# SRB2Web-Relay
-# SRB2Web-Relay
-# SRB2Web-Relay
-# SRB2Web-Relay
-# SRB2Web-Relay
-# SRB2Web-Relay
+This server uses IP addresses to manage connections in memory.

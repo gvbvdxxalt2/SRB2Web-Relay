@@ -65,7 +65,7 @@ wss.on("connection", (ws, request) => {
         return;
       }
       var id = json.id.trim().toLowerCase();
-      console.log("Client connecting to: " + id);
+      //console.log("Client connecting to: " + id);
       if (netgames[id]) {
         currentNetgame = netgames[id];
         isListening = false;
@@ -98,9 +98,9 @@ wss.on("connection", (ws, request) => {
           var customId = currentNetgame.connections.length + 1;
           otherWs._rid = customId;
           currentNetgame.connections.push(otherWs);
-          console.log(
+          /*console.log(
             "Client joined netgame: " + netId + " as ID: " + customId
-          );
+          );*/
           // Notify the server about the join
           ws.send(
             JSON.stringify({
@@ -133,7 +133,7 @@ wss.on("connection", (ws, request) => {
         },
       };
       netgames[netId] = currentNetgame;
-      console.log("Now listening on: " + netId);
+      //console.log("Now listening on: " + netId);
       ws._rid = 0; // Server's ID
       ws.send(JSON.stringify({ method: "listening", listening: netId }));
     }

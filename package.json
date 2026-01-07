@@ -1,0 +1,15 @@
+{
+  "name": "srb2web-relay",
+  "version": "1.0.0",
+  "description": "Relay server that handles netgame connections for SRB2Web v2.2.15",
+  "main": "",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "Gvbvdxx",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.19.0"
+  }
+}

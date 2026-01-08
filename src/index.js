@@ -1,9 +1,71 @@
 var ws = require("ws");
+var fs = require("fs");
+var path = require("path");
 var http = require("http");
 var process = require("process");
 var config = require("./config.js");
+var URL = require("url");
 
-var publicServers = [];
+var publicServers = {};
+
+var mimeTypes = require("./mime.js");
+
+function setNoCorsHeaders(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+}
+
+function terminateGhostSockets(ws) {
+  var isAlive = true;
+  var terminated = false;
+
+  function heartbeat() {
+    isAlive = true;
+  }
+
+  ws.on("pong", heartbeat);
+
+  var interval = setInterval(() => {
+    if (!isAlive) {
+      if (!terminated) {
+        terminated = true;
+        clearInterval(interval);
+        ws.terminate();
+        //ws.emit("close");
+      }
+      return;
+    }
+
+    isAlive = false;
+    try {
+      ws.ping();
+    } catch (err) {
+      if (!terminated) {
+        terminated = true;
+        clearInterval(interval);
+        ws.terminate();
+        //ws.emit("close");
+      }
+    }
+  }, 1500); // Check every 1500 miliseconds.
+
+  ws.on("close", () => {
+    if (!terminated) {
+      terminated = true;
+      clearInterval(interval);
+    }
+  });
+
+  try {
+    ws.ping();
+  } catch (err) {
+    // Socket might already be broken
+    if (!terminated) {
+      terminated = true;
+      clearInterval(interval);
+      ws.terminate();
+    }
+  }
+}
 
 function getIPFromRequest(req) {
   if (config.USE_X_FORWARDED_FOR) {
@@ -21,8 +83,55 @@ function getIPFromRequest(req) {
   return req.socket.remoteAddress;
 }
 
+function runStaticStuff(req, res, otheroptions, basePath = "./public/") {
+  var url = URL.parse(req.url);
+  var pathname = url.pathname;
+
+  setNoCorsHeaders(res);
+
+  var file = path.join(basePath, pathname);
+  if (file.split(".").length < 2) {
+    var _lastfile = file.toString();
+    file += ".html";
+    if (!fs.existsSync(file)) {
+      file = path.join(_lastfile, "/index.html");
+    }
+  }
+
+  if (!fs.existsSync(file)) {
+    file = "errors/404.html";
+    res.statusCode = 404;
+  }
+  if (otheroptions) {
+    if (typeof otheroptions.status == "number") {
+      file = "errors/" + otheroptions.status + ".html";
+      res.statusCode = otheroptions.status;
+    }
+  }
+
+  var extension = file.split(".").pop().toLowerCase();
+
+  var mime = mimeTypes[extension];
+  if (mime) {
+    res.setHeader("content-type", mime);
+  }
+  if (extension == "html" || extension == "js") {
+    res.setHeader("Content-Type", mime + "; charset=utf-8");
+    res.end(fs.readFileSync(file, { encoding: "utf-8" }));
+  } else {
+    fs.createReadStream(file).pipe(res);
+  }
+}
+
 var server = http.createServer(function (req, res) {
-  res.end("");
+  var url = decodeURIComponent(req.url);
+  var urlsplit = url.split("/");
+
+  if (config.ALLOW_PUBLIC_NETGAMES) {
+    runStaticStuff(req,res, {}, "./public/");
+  } else {
+    runStaticStuff(req,res, {}, "./public-unlisted-only/");
+  }
 });
 
 var wss = new ws.WebSocketServer({ noServer: true });
@@ -153,6 +262,9 @@ wss.on("connection", (ws, request) => {
         },
       };
       netgames[netId] = currentNetgame;
+      if (json.public && config.ALLOW_PUBLIC_NETGAMES) {
+        publicServers[netId] = true;
+      }
       //console.log("Now listening on: " + netId);
       ws._rid = 0; // Server's ID
       ws.send(JSON.stringify({ method: "listening", listening: netId }));
@@ -162,6 +274,7 @@ wss.on("connection", (ws, request) => {
       isListening = false;
       if (currentNetgame && isListening) {
         delete netgames[currentNetgame.id];
+        delete publicServers[currentNetgame.id];
       }
       currentNetgame = null;
     }
@@ -175,6 +288,7 @@ wss.on("connection", (ws, request) => {
     if (currentNetgame) {
       if (isListening) {
         delete netgames[currentNetgame.id];
+        delete publicServers[currentNetgame.id];
       } else {
         currentNetgame.close(ws);
       }
@@ -182,6 +296,8 @@ wss.on("connection", (ws, request) => {
     isListening = false;
     currentNetgame = null;
   });
+
+  terminateGhostSockets(ws);
 
   ws.send(
     JSON.stringify({

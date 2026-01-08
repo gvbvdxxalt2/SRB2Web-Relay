@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Sonic Robo Blast 2 Web - Relay Netgame Server</title>
+    </head>
+    <body>
+        <style>
+            body {
+                background: black;
+                font-family: arial;
+            }
+            .centeredBox {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                padding: 12px 12px;
+                background: white;
+                border-radius: 5px;
+                transform: translate(-50%, -50%);
+                text-align:center;
+            }
+            button {
+                cursor: pointer;
+            }
+        </style>
+        <div class="centeredBox">
+            <img src="srb2logo.png" style="height: 200px;"><br>
+            <b>No public netgame support</b><br>
+            <span>Add this netgame relay server to SRB2Web by putting the relay address below:</span><br>
+            <i id="relayUrl"></i>
+            <button id="copyButton">Copy</button>
+        </div>
+
+        <script>
+            var url = document.getElementById("relayUrl");
+            var copyButton = document.getElementById("copyButton");
+
+            if (window.location.protocol.startsWith("https:")) {
+                url.textContent = "wss://" + window.location.host;
+            } else {
+                url.textContent = "ws://" + window.location.host;
+            }
+
+            async function copyClicked() {
+                try{
+                    await navigator.clipboard.writeText(url.textContent);
+                }catch(e){}
+                copyButton.textContent = "Copied!";
+                copyButton.onclick = null;
+                setTimeout(() => {
+                    copyButton.textContent = "Copy";
+                    copyButton.onclick = copyClicked;
+                },1000);
+            };
+            copyButton.onclick = copyClicked;
+        </script>
+    </body>
+</html>

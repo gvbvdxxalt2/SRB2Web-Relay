@@ -9,18 +9,18 @@
                 background: black;
                 font-family: arial;
             }
-            .centeredBox {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                padding: 12px 12px;
-                background: white;
-                border-radius: 5px;
-                transform: translate(-50%, -50%);
-                text-align:center;
-            }
             button {
                 cursor: pointer;
+            }
+            #publicRelaysList {
+                background: rgba(255,255,255,0.3);
+                position: fixed;
+                width: calc(100% - 100px);
+                height: calc(100svh - 100px);
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                overflow: auto;
             }
         </style>
         <div id="publicRelaysList">

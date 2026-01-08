@@ -1,12 +1,22 @@
 var ws = require("ws");
 var http = require("http");
 var process = require("process");
+var config = require("./config.js");
+
+var publicServers = [];
 
 function getIPFromRequest(req) {
-  if (req.headers["x-forwarded-for"]) {
-    var IPString = "" + req.headers["x-forwarded-for"];
-    var IPs = IPString.split(",").map((ip) => ip.trim());
-    return IPs[0];
+  if (config.USE_X_FORWARDED_FOR) {
+    var forwardedForHeader = req.headers["x-forwarded-for"];
+    if (forwardedForHeader) {
+      if (config.ON_RENDER_COM) {
+        var IPString = "" + forwardedForHeader;
+        var IPs = IPString.split(",").map((ip) => ip.trim());
+        return IPs[0];
+      } else {
+        return forwardedForHeader;
+      }
+    }
   }
   return req.socket.remoteAddress;
 }
@@ -65,13 +75,14 @@ wss.on("connection", (ws, request) => {
         return;
       }
       var id = json.id.trim().toLowerCase();
-      //console.log("Client connecting to: " + id);
+      if (id.indexOf(":") == -1) {
+        id += ":5029";
+      }
       if (netgames[id]) {
         currentNetgame = netgames[id];
         isListening = false;
-        // Add this client to the netgame
         currentNetgame.open(ws);
-        ws.send(JSON.stringify({ method: "connected" })); // Optional ack
+        ws.send(JSON.stringify({ method: "connected" }));
       } else {
         ws.send(
           JSON.stringify({ method: "error", message: "Netgame not found" })
@@ -95,6 +106,9 @@ wss.on("connection", (ws, request) => {
         id: netId,
         connections: [],
         open: function (otherWs) {
+          if (!currentNetgame) {
+            return;
+          }
           var customId = currentNetgame.connections.length + 1;
           otherWs._rid = customId;
           currentNetgame.connections.push(otherWs);
@@ -111,6 +125,9 @@ wss.on("connection", (ws, request) => {
           );
         },
         send: function (otherWs, data, customId) {
+          if (!currentNetgame) {
+            return;
+          }
           if (!otherWs._rid) {
             currentNetgame.open(otherWs, customId);
           }
@@ -124,6 +141,9 @@ wss.on("connection", (ws, request) => {
           );
         },
         close: function (otherWs) {
+          if (!currentNetgame) {
+            return;
+          }
           currentNetgame.connections = currentNetgame.connections.filter(
             (w) => w._rid !== otherWs._rid
           );

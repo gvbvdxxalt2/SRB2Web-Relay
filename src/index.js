@@ -127,11 +127,17 @@ var server = http.createServer(function (req, res) {
   var url = decodeURIComponent(req.url);
   var urlsplit = url.split("/");
 
-  if (config.ALLOW_PUBLIC_NETGAMES) {
-    runStaticStuff(req,res, {}, "./public/");
-  } else {
+  if (!config.ALLOW_PUBLIC_NETGAMES) {
     runStaticStuff(req,res, {}, "./public-unlisted-only/");
+    return;
   }
+
+  if (urlsplit[1] == "netgames") {
+    res.end(JSON.stringify(Object.keys(publicServers)));
+    return;
+  }
+  
+  runStaticStuff(req,res, {}, "./public/");
 });
 
 var wss = new ws.WebSocketServer({ noServer: true });

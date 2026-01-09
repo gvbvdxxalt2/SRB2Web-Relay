@@ -174,6 +174,8 @@ wss.on("connection", (ws, request) => {
             method: "data",
             data: json.data,
             id: ws._rid, // From the server's perspective
+            ip: ws._relayIP,
+            port: ws._relayPort
           })
         );
       } else {
@@ -197,6 +199,7 @@ wss.on("connection", (ws, request) => {
         currentNetgame = netgames[id];
         isListening = false;
         currentNetgame.open(ws);
+        console.log("Client connected to "+id);
         ws.send(JSON.stringify({ method: "connected" }));
       } else {
         ws.send(
@@ -227,6 +230,12 @@ wss.on("connection", (ws, request) => {
           var customId = currentNetgame.connections.length + 1;
           otherWs._rid = customId;
           currentNetgame.connections.push(otherWs);
+          otherWs._relayPort = 1000;
+          for (var con of currentNetgame.connections) {
+            if (con._relayPort == otherWs._relayPort) {
+              otherWs._relayPort = con._relayPort + 1;
+            }
+          }
           /*console.log(
             "Client joined netgame: " + netId + " as ID: " + customId
           );*/
@@ -236,6 +245,7 @@ wss.on("connection", (ws, request) => {
               method: "join",
               id: customId,
               ip: otherWs._relayIP,
+              port: otherWs._relayPort
             })
           );
         },
@@ -252,6 +262,8 @@ wss.on("connection", (ws, request) => {
               method: "data",
               data: data,
               id: otherWs._rid,
+              ip: otherWs._relayIP,
+              port: otherWs._relayPort
             })
           );
         },
@@ -319,4 +331,4 @@ server.on("upgrade", function (request, socket, head) {
   });
 });
 
-server.listen(+process.env.PORT || 3000);
+server.listen(+process.env.PORT || config.DEFAULT_PORT);

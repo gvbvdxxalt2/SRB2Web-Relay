@@ -144,7 +144,9 @@ var wss = new ws.WebSocketServer({ noServer: true });
 var netgames = {};
 
 wss.on("connection", (ws, request) => {
+  //ws._relayIP = Math.round((Math.random() * 255) + 1) + "." + Math.round((Math.random() * 255) + 1) + "." + Math.round((Math.random() * 255) + 1) + "." + Math.round((Math.random() * 255) + 1);
   ws._relayIP = getIPFromRequest(request);
+
   var currentNetgame = null;
   var isListening = false;
 
@@ -199,7 +201,7 @@ wss.on("connection", (ws, request) => {
         currentNetgame = netgames[id];
         isListening = false;
         currentNetgame.open(ws);
-        console.log("Client connected to "+id);
+        //console.log("Client connected to "+id);
         ws.send(JSON.stringify({ method: "connected" }));
       } else {
         ws.send(

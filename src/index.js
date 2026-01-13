@@ -1,3 +1,5 @@
+var mimeTypes = require("./mime.js");
+
 var ws = require("ws");
 var fs = require("fs");
 var path = require("path");
@@ -7,8 +9,6 @@ var config = require("./config.js");
 var URL = require("url");
 
 var publicServers = {};
-
-var mimeTypes = require("./mime.js");
 
 function setNoCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -128,7 +128,7 @@ var server = http.createServer(function (req, res) {
   var urlsplit = url.split("/");
 
   if (!config.ALLOW_PUBLIC_NETGAMES) {
-    runStaticStuff(req,res, {}, "./public-unlisted-only/");
+    runStaticStuff(req, res, {}, "./public-unlisted-only/");
     return;
   }
 
@@ -136,8 +136,8 @@ var server = http.createServer(function (req, res) {
     res.end(JSON.stringify(Object.keys(publicServers)));
     return;
   }
-  
-  runStaticStuff(req,res, {}, "./public/");
+
+  runStaticStuff(req, res, {}, "./public/");
 });
 
 var wss = new ws.WebSocketServer({ noServer: true });
@@ -177,7 +177,7 @@ wss.on("connection", (ws, request) => {
             data: json.data,
             id: ws._rid, // From the server's perspective
             ip: ws._relayIP,
-            port: ws._relayPort
+            port: ws._relayPort,
           })
         );
       } else {
@@ -247,7 +247,7 @@ wss.on("connection", (ws, request) => {
               method: "join",
               id: customId,
               ip: otherWs._relayIP,
-              port: otherWs._relayPort
+              port: otherWs._relayPort,
             })
           );
         },
@@ -265,7 +265,7 @@ wss.on("connection", (ws, request) => {
               data: data,
               id: otherWs._rid,
               ip: otherWs._relayIP,
-              port: otherWs._relayPort
+              port: otherWs._relayPort,
             })
           );
         },

@@ -165,7 +165,7 @@ class UDPNetgame {
     if (!rws) {
       return;
     }
-    rws.send(
+    this.host.send(
       JSON.stringify({
         method: "data",
         data: data,

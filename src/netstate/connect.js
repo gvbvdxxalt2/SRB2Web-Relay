@@ -1,1 +1,40 @@
 var config = require("../config.js");
+
+class ConnectState {
+  constructor(rws) {
+    this.rws = rws;
+    this.netgame = null;
+    this.init();
+  }
+
+  init() {
+    var { rws } = this;
+    rws.ondata = this.handleData.bind(this);
+    rws.onclose = this.handleClose.bind(this);
+    rws.onresume = this.handleResume.bind(this);
+  }
+
+  handleData(data) {
+    var { rws } = this;
+    try {
+      var json = JSON.parse(data);
+    } catch (e) {
+      if (config.DEBUG_BAD_JSON) {
+        console.log(e);
+      }
+      return;
+    }
+
+    if (json.method == "listen") {
+      rws.setState(ListenState);
+    }
+  }
+  handleClose() {
+    var { rws } = this;
+  }
+  handleResume() {
+    var { rws } = this;
+  }
+}
+
+module.exports = ConnectState;

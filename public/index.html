@@ -18,6 +18,10 @@
         border-radius: 5px;
         transform: translate(-50%, -50%);
         text-align: center;
+        max-height: 100svh;
+        max-width: 100svh;
+        overflow: scroll;
+        box-sizing: border-box;
       }
       button {
         cursor: pointer;
@@ -35,7 +39,8 @@
         below:</span
       ><br />
       <i id="relayUrl"></i>
-      <button id="copyButton">Copy</button>
+      <button id="copyButton">Copy</button><br />
+      <span>Connect to it, then you're good to go with netgames!</span>
     </div>
 
     <script>

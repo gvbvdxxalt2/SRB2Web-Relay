@@ -54,12 +54,18 @@ class UDPNetgame {
     );
   }
 
+  closeClients() {
+    for (var relayID of Object.keys(this.connections)) {
+      this.handleClose(relayID);
+    }
+  }
+
   close() {
     if (!this.active) {
       return;
     }
     delete netgames[this.url];
-    this.connections = {};
+    this.closeClients();
     this.active = false;
     this.url = "";
     this.host.send(
@@ -146,6 +152,9 @@ class UDPNetgame {
     rws.netgameClose = null;
     rws.netgameSend = null;
     delete this.connections[relayID];
+    if (rws.state.handleNetgameClose) {
+      rws.state.handleNetgameClose();
+    }
   }
 
   handleSend(relayID, data) {

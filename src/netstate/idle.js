@@ -29,6 +29,13 @@ class IdleState {
     if (json.method == "listen") {
       rws.setState(ListenState);
     }
+
+    if (json.method == "connect") {
+      if (typeof json.url !== "string") {
+        return;
+      }
+      rws.setState(ConnectState, json.url);
+    }
   }
   handleClose() {
     var { rws } = this;

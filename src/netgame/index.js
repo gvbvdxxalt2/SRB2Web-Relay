@@ -1,8 +1,4 @@
-var { UDPNetgame } = require("./clients.js");
-
-function getStatusResponse() {
-  return JSON.stringify();
-}
+var { UDPNetgame } = require("./netgame.js");
 
 module.exports = {
   UDPNetgame,

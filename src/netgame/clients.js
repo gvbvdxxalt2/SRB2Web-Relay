@@ -168,6 +168,4 @@ class UDPNetgame {
 
 module.exports = {
   UDPNetgame,
-  generateURL: UDPNetgame.generateURL,
-  findNetgame: UDPNetgame.findNetgame,
 };

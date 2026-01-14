@@ -1,3 +1,5 @@
+//Mime types for server.
+
 module.exports = {
   aac: "audio/aac",
   abw: "application/x-abiword",

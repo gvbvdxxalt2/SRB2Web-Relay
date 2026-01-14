@@ -1,30 +1,65 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>Sonic Robo Blast 2 Web - Relay Netgame Server</title>
-    </head>
-    <body>
-        <style>
-            body {
-                background: black;
-                font-family: arial;
-            }
-            button {
-                cursor: pointer;
-            }
-            #publicRelaysList {
-                background: rgba(255,255,255,0.3);
-                position: fixed;
-                width: calc(100% - 100px);
-                height: calc(100svh - 100px);
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                overflow: auto;
-            }
-        </style>
-        <div id="publicRelaysList">
+  <head>
+    <title>Sonic Robo Blast 2 Web - Relay Netgame Server</title>
+  </head>
+  <body>
+    <style>
+      body {
+        background: black;
+        font-family: arial;
+      }
+      .centeredBox {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        padding: 12px 12px;
+        background: white;
+        border-radius: 5px;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      button {
+        cursor: pointer;
+      }
+      .logo {
+        height: fit-content;
+        width: 100%;
+        max-width: 400px;
+      }
+    </style>
+    <div class="centeredBox">
+      <img src="srb2logo.png" class="logo" /><br />
+      <span
+        >Add this netgame relay server to SRB2Web by putting the relay address
+        below:</span
+      ><br />
+      <i id="relayUrl"></i>
+      <button id="copyButton">Copy</button>
+    </div>
 
-        </div>
-    </body>
+    <script>
+      var url = document.getElementById("relayUrl");
+      var copyButton = document.getElementById("copyButton");
+
+      if (window.location.protocol.startsWith("https:")) {
+        url.textContent = window.location.host;
+      } else {
+        url.textContent = window.location.host;
+      }
+
+      async function copyClicked() {
+        try {
+          await navigator.clipboard.writeText(url.textContent);
+        } catch (e) {}
+        copyButton.textContent = "Copied!";
+        copyButton.onclick = null;
+        setTimeout(() => {
+          copyButton.textContent = "Copy";
+          copyButton.onclick = copyClicked;
+        }, 1000);
+      }
+      copyButton.onclick = copyClicked;
+    </script>
+  </body>
 </html>

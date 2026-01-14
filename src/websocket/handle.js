@@ -39,7 +39,7 @@ function handleConnection(ws, request) {
     }
   }
   if (resumable) {
-    resumable.handleResume();
+    resumable.handleResume(ws);
   } else {
     rid = generateResumableID();
     resumable = new ResumeableWebsocket(ws, request, rid);

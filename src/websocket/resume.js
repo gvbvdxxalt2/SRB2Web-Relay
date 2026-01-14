@@ -41,8 +41,9 @@ class ResumeableWebsocket {
     this.ondata(data);
   }
 
-  handleResume() {
+  handleResume(ws) {
     clearTimeout(this.closeTimeout);
+    this.ws = ws;
     this.handleSendQueue();
     this.onresume();
   }

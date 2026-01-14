@@ -10,6 +10,4 @@ config.description = fs.readFileSync(
   { encoding: "UTF-8" }
 );
 
-console.log(config);
-
 module.exports = config;

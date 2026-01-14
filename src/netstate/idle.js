@@ -1,4 +1,6 @@
 var config = require("../config.js");
+var ConnectState = require("./connect.js");
+var ListenState = require("./listen.js");
 
 class IdleState {
   constructor(rws) {
@@ -10,9 +12,11 @@ class IdleState {
     var { rws } = this;
     rws.ondata = this.handleData.bind(this);
     rws.onclose = this.handleClose.bind(this);
+    rws.onresume = this.handleResume.bind(this);
   }
 
   handleData(data) {
+    var { rws } = this;
     try {
       var json = JSON.parse(data);
     } catch (e) {
@@ -21,8 +25,17 @@ class IdleState {
       }
       return;
     }
+
+    if (json.method == "listen") {
+      rws.setState(ListenState);
+    }
   }
-  handleClose() {}
+  handleClose() {
+    var { rws } = this;
+  }
+  handleResume() {
+    var { rws } = this;
+  }
 }
 
 module.exports = IdleState;

@@ -1,6 +1,8 @@
+var util = require("../req-util.js");
+
 class ResumeableWebsocket {
   static MAX_QUEUE = 8000; //Max queue length.
-  static CLOSE_TIMEOUT = 2000; //How long would the resumable websocket stay.
+  static CLOSE_TIMEOUT = 3000; //How long would the resumable websocket stay after closing.
 
   constructor(ws, request, id) {
     this.ws = ws;
@@ -9,16 +11,21 @@ class ResumeableWebsocket {
     this.sendQueue = [];
     this.closeTimeout = null;
     this.state = null;
+    this.ip = util.getIP(request);
+
+    this.sendResumableID();
   }
 
-  setState(stateConstructor) {
+  setState(stateConstructor, ...args) {
     this.onclose = function () {};
     this.ondata = function () {};
-    this.state = new stateConstructor(this);
+    this.onresume = function () {};
+    this.state = new stateConstructor(this, ...args);
   }
 
   onclose() {} //Overriden later.
   ondata() {} //Overridden later.
+  onresume() {} //Overridden later.
 
   send(data) {
     //Pervents flooding the server.
@@ -30,9 +37,14 @@ class ResumeableWebsocket {
     }
   }
 
+  handleData(data) {
+    this.ondata(data);
+  }
+
   handleResume() {
     clearTimeout(this.closeTimeout);
     this.handleSendQueue();
+    this.onresume();
   }
 
   handleSendQueue() {
@@ -41,17 +53,33 @@ class ResumeableWebsocket {
     }
     var queue = Array.from(this.sendQueue);
     for (var msg of queue) {
-      this.ws.send(queue);
+      this.ws.send(msg);
     }
     this.sendQueue = [];
   }
+
+  resumableTimedOut() {} //Overriden later.
+
+  resetState() {} //Overriden later.
 
   handleClose() {
     var _this = this;
     this.ws = null;
     this.closeTimeout = setTimeout(() => {
+      if (_this.resumableTimedOut) {
+        _this.resumableTimedOut();
+      }
       _this.onclose();
-    });
+    }, ResumeableWebsocket.CLOSE_TIMEOUT);
+  }
+
+  sendResumableID() {
+    this.send(
+      JSON.stringify({
+        method: "resumable",
+        id: this.id,
+      })
+    );
   }
 }
 

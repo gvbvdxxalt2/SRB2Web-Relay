@@ -18,3 +18,21 @@ server.on("upgrade", function (request, socket, head) {
 });
 
 console.log(`Relay server is now active on port ${currentPort}`);
+
+var nb = require("./netbin/");
+var arr = [
+  "test",
+  "a1b2c3",
+  "mkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvf",
+  true,
+  1,
+  2,
+  999999999999999999,
+  "test",
+];
+
+var binary = new Uint8Array([255, 2, 255]);
+var encoded = nb.encode(arr, binary);
+
+console.log(encoded);
+console.log(nb.decode(encoded));

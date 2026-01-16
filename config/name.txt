@@ -1,1 +1,1 @@
-SRB2Web open source relay server.
+Open source relay server.

@@ -1,2 +1,1 @@
 Public SRB2 Web port relay server.
-Used to forward UDP games in the browser.

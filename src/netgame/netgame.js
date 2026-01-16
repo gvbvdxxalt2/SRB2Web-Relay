@@ -1,4 +1,5 @@
 var util = require("../req-util.js");
+var NetBin = require("../netbin/");
 var netgames = {};
 
 class UDPNetgame {
@@ -46,12 +47,7 @@ class UDPNetgame {
     if (!this.host) {
       return;
     }
-    this.host.send(
-      JSON.stringify({
-        method: "listening",
-        url: this.url,
-      })
-    );
+    this.host.send(NetBin.encode(["listening", this.url]));
   }
 
   closeClients() {
@@ -68,11 +64,7 @@ class UDPNetgame {
     this.closeClients();
     this.active = false;
     this.url = "";
-    this.host.send(
-      JSON.stringify({
-        method: "closed",
-      })
-    );
+    this.host.send(NetBin.encode(["closed"]));
     this.host = null;
   }
 
@@ -89,12 +81,7 @@ class UDPNetgame {
     if (!rws) {
       return;
     }
-    rws.send(
-      JSON.stringify({
-        method: "data",
-        data: data,
-      })
-    );
+    rws.send(NetBin.encode(["data"], data));
   }
 
   join(rws) {
@@ -120,13 +107,7 @@ class UDPNetgame {
     if (!this.host) {
       return;
     }
-    this.host.send(
-      JSON.stringify({
-        method: "joined",
-        id: relayID,
-        ip: rws.ip,
-      })
-    );
+    this.host.send(NetBin.encode(["joined", relayID, rws.ip]));
   }
 
   handleClose(relayID) {
@@ -137,17 +118,8 @@ class UDPNetgame {
     if (!this.host) {
       return;
     }
-    this.host.send(
-      JSON.stringify({
-        method: "leave",
-        id: relayID,
-      })
-    );
-    rws.send(
-      JSON.stringify({
-        method: "closed",
-      })
-    );
+    this.host.send(NetBin.encode(["leave", relayID]));
+    rws.send(NetBin.encode(["closed"]));
     rws.netgameID = null;
     rws.netgameClose = null;
     rws.netgameSend = null;
@@ -165,13 +137,7 @@ class UDPNetgame {
     if (!rws) {
       return;
     }
-    this.host.send(
-      JSON.stringify({
-        method: "data",
-        data: data,
-        id: relayID,
-      })
-    );
+    this.host.send(NetBin.encode(["data", relayID], data));
   }
 }
 

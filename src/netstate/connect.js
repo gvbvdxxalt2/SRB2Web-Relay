@@ -1,5 +1,6 @@
 var config = require("../config.js");
 var { UDPNetgame } = require("../netgame");
+var NetBin = require("../netbin/");
 
 class ConnectState {
   constructor(rws, url) {
@@ -19,17 +20,9 @@ class ConnectState {
       this.connected = true;
       this.netgame = netgame;
       netgame.join(rws);
-      rws.send(
-        JSON.stringify({
-          method: "connected",
-        })
-      );
+      rws.send(NetBin.encode(["connected"]));
     } else {
-      rws.send(
-        JSON.stringify({
-          method: "closed",
-        })
-      );
+      rws.send(NetBin.encode(["closed"]));
       rws.resetState();
     }
   }
@@ -44,25 +37,22 @@ class ConnectState {
   handleData(data) {
     var { rws, netgame } = this;
     try {
-      var json = JSON.parse(data);
+      var decoded = NetBin.decode(new Uint8Array(data));
     } catch (e) {
-      if (config.DEBUG_BAD_JSON) {
+      if (config.DEBUG_BAD_MESSAGE) {
         console.log(e);
       }
       return;
     }
 
-    if (json.method == "data") {
+    if (decoded.items[0] == "data") {
       if (!rws.netgameSend) {
         return;
       }
-      if (typeof json.data !== "string") {
-        return;
-      }
-      rws.netgameSend(json.data);
+      rws.netgameSend(decoded.bin);
     }
 
-    if (json.method == "close") {
+    if (decoded.items[0] == "close") {
       if (!rws.netgameClose) {
         return;
       }
@@ -79,11 +69,7 @@ class ConnectState {
   }
   handleResume() {
     var { rws } = this;
-    rws.send(
-      JSON.stringify({
-        method: "connected",
-      })
-    );
+    rws.send(NetBin.encode(["connected"]));
   }
 }
 

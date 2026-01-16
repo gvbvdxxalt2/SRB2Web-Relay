@@ -1,5 +1,6 @@
 var config = require("../config.js");
 var { UDPNetgame } = require("../netgame");
+var NetBin = require("../netbin/");
 
 class ListenState {
   constructor(rws) {
@@ -27,32 +28,29 @@ class ListenState {
   handleData(data) {
     var { rws, netgame } = this;
     try {
-      var json = JSON.parse(data);
+      var decoded = NetBin.decode(new Uint8Array(data));
     } catch (e) {
-      if (config.DEBUG_BAD_JSON) {
+      if (config.DEBUG_BAD_MESSAGE) {
         console.log(e);
       }
       return;
     }
 
-    if (json.method == "data") {
-      if (typeof json.id !== "number") {
+    if (decoded.items[0] == "data") {
+      if (typeof decoded.items[1] !== "number") {
         return;
       }
-      if (typeof json.data !== "string") {
-        return;
-      }
-      netgame.send(json.id, json.data);
+      netgame.send(decoded.items[1], decoded.bin);
     }
 
-    if (json.method == "close_other") {
-      if (typeof json.id !== "number") {
+    if (decoded.items[0] == "close_other") {
+      if (typeof decoded.items[1] !== "number") {
         return;
       }
-      netgame.closeOther(json.id);
+      netgame.closeOther(decoded.items[1]);
     }
 
-    if (json.method == "close") {
+    if (decoded.items[0] == "close") {
       netgame.close();
       rws.resetState();
     }

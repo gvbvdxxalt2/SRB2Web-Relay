@@ -1,6 +1,7 @@
 var config = require("../config.js");
 var ConnectState = require("./connect.js");
 var ListenState = require("./listen.js");
+var NetBin = require("../netbin/");
 
 class IdleState {
   constructor(rws) {
@@ -18,23 +19,23 @@ class IdleState {
   handleData(data) {
     var { rws } = this;
     try {
-      var json = JSON.parse(data);
+      var decoded = NetBin.decode(new Uint8Array(data));
     } catch (e) {
-      if (config.DEBUG_BAD_JSON) {
+      if (config.DEBUG_BAD_MESSAGE) {
         console.log(e);
       }
       return;
     }
 
-    if (json.method == "listen") {
+    if (decoded.items[0] == "listen") {
       rws.setState(ListenState);
     }
 
-    if (json.method == "connect") {
-      if (typeof json.url !== "string") {
+    if (decoded.items[0] == "connect") {
+      if (typeof decoded.items[1] !== "string") {
         return;
       }
-      rws.setState(ConnectState, json.url);
+      rws.setState(ConnectState, decoded.items[1]);
     }
   }
   handleClose() {

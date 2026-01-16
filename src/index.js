@@ -18,21 +18,45 @@ server.on("upgrade", function (request, socket, head) {
 });
 
 console.log(`Relay server is now active on port ${currentPort}`);
+/*
+setTimeout(() => {
+  var nb = require("./netbin/");
+  var now = performance.now();
+  var arr = [
+    "test",
+    "a1b2c3",
+    "mkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvf",
+    true,
+    1,
+    2,
+    999999999999999999,
+    "test",
+  ];
 
-var nb = require("./netbin/");
-var arr = [
-  "test",
-  "a1b2c3",
-  "mkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvfmkdkmlfvfmlklkmvklmdvmkvf",
-  true,
-  1,
-  2,
-  999999999999999999,
-  "test",
-];
+  var binary = new Uint8Array([255, 2, 255]);
+  var encoded = nb.encode(arr, binary);
+  nb.decode(encoded);
 
-var binary = new Uint8Array([255, 2, 255]);
-var encoded = nb.encode(arr, binary);
+  var finish = performance.now();
 
-console.log(encoded);
-console.log(nb.decode(encoded));
+  var nbTime = finish - now;
+
+  console.log(`Time encoding & decoding using netbin: ${finish - now}`);
+
+  var now = performance.now();
+
+  JSON.parse(JSON.stringify(arr));
+
+  var finish = performance.now();
+
+  var jsonTime = finish - now;
+
+  console.log(`Time encoding & decoding using JSON: ${finish - now}`);
+
+  if (nbTime > jsonTime) {
+    console.log(`JSON encoding is faster`);
+  } else {
+    console.log(`Netbin encoding is faster`);
+  }
+}, 100);
+*/

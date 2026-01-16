@@ -1,4 +1,5 @@
 var util = require("../req-util.js");
+var NetBin = require("../netbin/");
 
 class ResumeableWebsocket {
   static MAX_QUEUE = 8000; //Max queue length.
@@ -75,12 +76,7 @@ class ResumeableWebsocket {
   }
 
   sendResumableID() {
-    this.send(
-      JSON.stringify({
-        method: "resumable",
-        id: this.id,
-      })
-    );
+    this.send(NetBin.encode(["resumable", this.id]));
   }
 }
 

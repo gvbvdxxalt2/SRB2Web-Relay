@@ -76,22 +76,17 @@ class UDPNetgame {
 
     var { host } = this;
     var _this = this;
-    //Handle data channel.
-    function handleChannel(ch) {
-      if (!ch) {
-        wss.handleUpgrade(request, socket, head, function done(ws) {
-          handleGhost(ws);
-          wss.emit("connection", ws, request);
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+      handleGhost(ws);
+      wss.emit("connection", ws, request);
+
+      //Handle data channel.
+      function handleChannel(ch) {
+        if (!ch) {
           ws.close(WSErrorCodes.HOST_CONNECT_TIMEOUT);
           delete _this.connections[id];
-        });
-        return;
-      }
-
-      wss.handleUpgrade(request, socket, head, function done(ws) {
-        handleGhost(ws);
-        wss.emit("connection", ws, request);
-
+          return;
+        }
         _this.connections[id] = ws;
 
         var didClose = false;
@@ -117,18 +112,18 @@ class UDPNetgame {
           didClose = true;
           ch.dispose(); //Calls onclose function.
         });
-      });
-    }
-    //Tell the host to contact and respond to the incoming connection.
-    var code = HostDataChannel.requestDataChannel(handleChannel);
-    host.send(
-      JSON.stringify({
-        method: "incoming",
-        channel: code,
-        id,
-        ip: util.getIP(request),
-      })
-    );
+      }
+      //Tell the host to contact and respond to the incoming connection.
+      var code = HostDataChannel.requestDataChannel(handleChannel);
+      host.send(
+        JSON.stringify({
+          method: "incoming",
+          channel: code,
+          id,
+          ip: util.getIP(request),
+        })
+      );
+    });
   }
 
   sendUrl() {

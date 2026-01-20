@@ -12,8 +12,6 @@ function handleUpgrade(request, socket, head) {
   var url = decodeURIComponent(request.url);
   var urlsplit = url.split("/");
 
-  console.log(request.url);
-
   if (urlsplit[1] == "listen") {
     wss.handleUpgrade(request, socket, head, function done(ws) {
       handleGhost(ws);

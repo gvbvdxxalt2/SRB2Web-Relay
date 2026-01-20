@@ -77,7 +77,7 @@ class NetBin {
           }
           outputBytes.push(chunk.length);
           outputBytes = outputBytes.concat(
-            chunk.split("").map((s) => s.charCodeAt())
+            chunk.split("").map((s) => s.charCodeAt()),
           );
           i += 1;
         }
@@ -145,7 +145,7 @@ class NetBin {
         while (i2 < len) {
           if (i > array.length) {
             throw new Error(
-              "String section length doesn't match up with binary data. Is it corrupt?"
+              "String section length doesn't match up with binary data. Is it corrupt?",
             );
           }
           str += String.fromCharCode(array[i]);
@@ -178,7 +178,7 @@ class NetBin {
         while (array[i] !== NUMBER_BYTES.end) {
           if (i > array.length) {
             throw new Error(
-              "Number section length doesn't match up with binary data. Is it corrupt?"
+              "Number section length doesn't match up with binary data. Is it corrupt?",
             );
             return;
           }

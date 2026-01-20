@@ -1,6 +1,15 @@
 var util = require("../req-util.js");
 var NetBin = require("../netbin/");
+var HostDataChannel = require("./datach.js");
+var WSErrorCodes = require("../websocket/errors.js");
 var netgames = {};
+
+var { handleGhost } = require("../websocket/ghost.js");
+var ws = require("ws");
+var wss = new ws.WebSocketServer({
+  noServer: true,
+  clientTracking: false,
+});
 
 class UDPNetgame {
   static generateURL(request) {
@@ -33,27 +42,105 @@ class UDPNetgame {
     return null;
   }
 
-  constructor(hostRws, request) {
+  static handleConnection({ request, socket, head }, netgameURL) {
+    var finalUrl = netgameURL.trim();
+    var netgame = netgames[finalUrl];
+    if (netgame) {
+      return netgame.handleJoin(request, socket, head);
+    }
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+      handleGhost(ws);
+      wss.emit("connection", ws, request);
+      ws.close(WSErrorCodes.NETGAME_NOT_FOUND);
+    });
+  }
+
+  constructor(hostws, request) {
     this.active = true;
     this.url = UDPNetgame.generateURL(request);
     netgames[this.url] = this;
-    this.host = hostRws;
+    this.host = hostws;
     this.connections = {};
 
-    this.sendUrl();
+    this.initHostSocket();
+  }
+
+  static HANDLING_CONNECTION = "handling";
+
+  handleJoin(request, socket, head) {
+    var id = 1;
+    while (this.connections[id]) {
+      id += 1;
+    }
+    this.connections[id] = UDPNetgame.HANDLING_CONNECTION;
+
+    var { host } = this;
+    var _this = this;
+    //Handle data channel.
+    function handleChannel(ch) {
+      if (!ch) {
+        wss.handleUpgrade(request, socket, head, function done(ws) {
+          handleGhost(ws);
+          wss.emit("connection", ws, request);
+          ws.close(WSErrorCodes.HOST_CONNECT_TIMEOUT);
+          delete _this.connections[id];
+        });
+        return;
+      }
+
+      wss.handleUpgrade(request, socket, head, function done(ws) {
+        handleGhost(ws);
+        wss.emit("connection", ws, request);
+
+        _this.connections[id] = ws;
+
+        var didClose = false;
+
+        ch.onclose = function () {
+          delete _this.connections[id];
+          if (!didClose) {
+            ws.close();
+          }
+        };
+
+        ch.ondata = function (data) {
+          //Host sending to connection.
+          ws.send(data);
+        };
+
+        ws.on("message", (data) => {
+          //Connection sending to host.
+          ch.send(data);
+        });
+
+        ws.on("close", () => {
+          didClose = true;
+          ch.dispose(); //Calls onclose function.
+        });
+      });
+    }
+    //Tell the host to contact and respond to the incoming connection.
+    var code = HostDataChannel.requestDataChannel(handleChannel);
+    host.send(
+      JSON.stringify({
+        method: "incoming",
+        channel: code,
+        id,
+        ip: util.getIP(request)
+      }),
+    );
   }
 
   sendUrl() {
     if (!this.host) {
       return;
     }
-    this.host.send(NetBin.encode(["listening", this.url]));
-  }
-
-  closeClients() {
-    for (var relayID of Object.keys(this.connections)) {
-      this.handleClose(relayID);
-    }
+    this.host.send(
+      JSON.stringify({
+        method: "listening",
+        url: this.url,
+      }),
+    );
   }
 
   close() {
@@ -64,80 +151,13 @@ class UDPNetgame {
     this.closeClients();
     this.active = false;
     this.url = "";
-    this.host.send(NetBin.encode(["closed"]));
+    this.host.close();
     this.host = null;
   }
 
-  closeOther(relayID) {
-    var rws = this.connections[relayID];
-    if (!rws) {
-      return;
-    }
-    rws.netgameClose();
-  }
-
-  send(relayID, data) {
-    var rws = this.connections[relayID];
-    if (!rws) {
-      return;
-    }
-    rws.send(NetBin.encode(["data"], data));
-  }
-
-  join(rws) {
-    if (!this.active) {
-      return false;
-    }
-    var _this = this;
-    //Find a open spot.
-    var relayID = 1;
-    while (this.connections[relayID]) {
-      relayID += 1;
-    }
-    this.connections[relayID] = rws;
-    //Add util functions to interact with the server.
-    rws.netgameID = relayID;
-    rws.netgameSend = function (data) {
-      _this.handleSend(relayID, data);
-    };
-    rws.netgameClose = function () {
-      _this.handleClose(relayID);
-    };
-    //Send to the host.
-    if (!this.host) {
-      return;
-    }
-    this.host.send(NetBin.encode(["joined", relayID, rws.ip]));
-  }
-
-  handleClose(relayID) {
-    var rws = this.connections[relayID];
-    if (!rws) {
-      return;
-    }
-    if (!this.host) {
-      return;
-    }
-    this.host.send(NetBin.encode(["leave", relayID]));
-    rws.send(NetBin.encode(["closed"]));
-    rws.netgameID = null;
-    rws.netgameClose = null;
-    rws.netgameSend = null;
-    delete this.connections[relayID];
-    if (rws.state.handleNetgameClose) {
-      rws.state.handleNetgameClose();
-    }
-  }
-
-  handleSend(relayID, data) {
-    if (!this.host) {
-      return;
-    }
-    var rws = this.connections[relayID];
-    if (!rws) {
-      return;
-    }
-    this.host.send(NetBin.encode(["data", relayID], data));
+  initHostSocket() {
+    var { host } = this;
+    this.sendUrl();
   }
 }
 

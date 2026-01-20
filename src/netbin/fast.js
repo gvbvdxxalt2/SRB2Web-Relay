@@ -43,7 +43,7 @@ class NetBin {
       } else {
         // If this throws, you forgot to set binaryType = 'arraybuffer'
         throw new Error(
-          `NetBin decode received invalid type: ${data.constructor.name}. Expected Uint8Array or ArrayBuffer.`
+          `NetBin decode received invalid type: ${data.constructor.name}. Expected Uint8Array or ArrayBuffer.`,
         );
       }
     }

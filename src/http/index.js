@@ -14,7 +14,7 @@ function onHttpRequest(req, res) {
         status: "online",
         name: config.name,
         description: config.description,
-      })
+      }),
     );
     return;
   }

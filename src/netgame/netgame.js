@@ -107,6 +107,8 @@ class UDPNetgame {
           ch.send(data);
         });
 
+        ws.send(JSON.stringify({ ready: true }));
+
         ws.on("close", () => {
           didClose = true;
           ch.dispose(); //Calls onclose function.

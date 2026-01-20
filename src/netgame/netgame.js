@@ -126,8 +126,8 @@ class UDPNetgame {
         method: "incoming",
         channel: code,
         id,
-        ip: util.getIP(request)
-      }),
+        ip: util.getIP(request),
+      })
     );
   }
 
@@ -139,7 +139,7 @@ class UDPNetgame {
       JSON.stringify({
         method: "listening",
         url: this.url,
-      }),
+      })
     );
   }
 
@@ -151,13 +151,25 @@ class UDPNetgame {
     this.closeClients();
     this.active = false;
     this.url = "";
-    this.host.close();
-    this.host = null;
+  }
+
+  closeClients() {
+    for (var id of Object.keys(this.connections)) {
+      if (typeof this.connections[id] !== "string") {
+        this.connections[id].dispose();
+      }
+    }
   }
 
   initHostSocket() {
+    var _this = this;
     var { host } = this;
     this.sendUrl();
+
+    host.on("close", () => {
+      _this.close();
+      _this.host = null;
+    });
   }
 }
 

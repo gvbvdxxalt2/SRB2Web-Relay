@@ -16,8 +16,8 @@ function generateRandomStuff(randomLength = 8) {
 class HostDataChannel {
   static CONNECT_TIMEOUT = 5000;
 
-  static handleWsOpenChannel(ws, id) {
-    var f = dataChannelQueue[id];
+  static handleWsOpenChannel(ws, id = "") {
+    var f = dataChannelQueue[id.trim()];
     if (!f) {
       ws.close();
       return;
@@ -33,7 +33,7 @@ class HostDataChannel {
       delete dataChannelQueue[code];
     }, HostDataChannel.CONNECT_TIMEOUT);
     dataChannelQueue[code] = function (channel) {
-      clearTimeout(channel);
+      clearTimeout(timeout);
       onchannel(channel);
     };
 

@@ -77,11 +77,10 @@ class UDPNetgame {
     var { host } = this;
     var _this = this;
     wss.handleUpgrade(request, socket, head, function done(ws) {
-      handleGhost(ws);
-      wss.emit("connection", ws, request);
-
       //Handle data channel.
       function handleChannel(ch) {
+        handleGhost(ws);
+        wss.emit("connection", ws, request);
         if (!ch) {
           ws.close(WSErrorCodes.HOST_CONNECT_TIMEOUT);
           delete _this.connections[id];

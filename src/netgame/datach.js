@@ -14,11 +14,12 @@ function generateRandomStuff(randomLength = 8) {
 }
 
 class HostDataChannel {
-  static CONNECT_TIMEOUT = 5000;
+  static CONNECT_TIMEOUT = 3000;
 
   static handleWsOpenChannel(ws, id = "") {
     var f = dataChannelQueue[id.trim()];
     if (!f) {
+      //console.log("Host connect error");
       ws.close();
       return;
     }

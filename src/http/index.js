@@ -20,7 +20,8 @@ function onHttpRequest(req, res) {
     return;
   }
   if (urlsplit[1] == "public") {
-    res.end(JSON.stringify(PublicManager.listPublicNetgames()));
+    var list = PublicManager.listPublicNetgames();
+    res.end(JSON.stringify(list));
     return;
   }
 

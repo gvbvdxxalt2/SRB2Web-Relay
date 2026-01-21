@@ -1,4 +1,11 @@
+var config = require("../config.js");
 var publicNetgames = {};
+
+class PublicNetgame {
+  constructor(url, name, netgame) {
+    this.name = name;
+  }
+}
 
 class PublicNetGameManager {
   static listPublicNetgames() {
@@ -9,9 +16,11 @@ class PublicNetGameManager {
   }
 
   static registerPublic(url, info) {
-    this.info = {
-      name: "SRB2 Server",
-    };
+    var netinfo = new PublicNetgame(
+      url,
+      info.name || config.PUBLIC_SERVER_DEFAULT_NAME
+    );
+    return;
   }
 }
 

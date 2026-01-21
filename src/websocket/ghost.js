@@ -1,8 +1,14 @@
 function handleGhost(ws) {
   var isAlive = true;
   var terminated = false;
+  var last = performance.now();
+
+  ws._pongspeed = 0;
 
   function heartbeat() {
+    var now = performance.now();
+    ws._pongspeed = last - now;
+    last = performance.now();
     isAlive = true;
   }
 

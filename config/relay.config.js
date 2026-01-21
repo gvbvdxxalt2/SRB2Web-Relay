@@ -11,6 +11,8 @@ module.exports = {
 
   DATA_CHANNEL_INACTIVE_TIMEOUT: 10000, //Ten seconds before a connection times out because no data sent.
 
+  PUBLIC_SERVER_DEFAULT_NAME: "SRB2 Server", //Default name for public servers.
+
   WebsocketConfig: {
     perMessageDeflate: {
       zlibDeflateOptions: {

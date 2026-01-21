@@ -8,8 +8,18 @@ class PublicNetgame {
     this.map = "";
     this.mapTitle = "";
     this.ingamePlayers = 0;
+    this.playerNames = [];
 
     publicNetgames[this.url] = this; //Register it
+  }
+
+  updatePlayerNames(text = "") {
+    var arr = text
+      .split("\n")
+      .map((n) => n.trim())
+      .filter((n) => !!n);
+    this.playerNames = arr;
+    return arr;
   }
 
   unlist() {

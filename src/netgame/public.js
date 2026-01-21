@@ -6,7 +6,7 @@ class PublicNetgame {
     this.url = url;
     this.name = config.PUBLIC_SERVER_DEFAULT_NAME;
     this.map = "";
-    this.mapName = "";
+    this.mapTitle = "";
 
     publicNetgames[this.url] = this; //Register it
   }
@@ -26,7 +26,7 @@ class PublicNetGameManager {
         url,
         name: netinfo.name,
         map: netinfo.map,
-        mapName: netinfo.mapName,
+        mapTitle: netinfo.mapTitle,
       });
     }
 

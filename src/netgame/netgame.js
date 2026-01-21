@@ -193,8 +193,8 @@ class UDPNetgame {
       if (typeof json.map == "string") {
         netinfo.map = json.map;
       }
-      if (typeof json.mapName == "string") {
-        netinfo.mapName = json.mapName;
+      if (typeof json.mapTitle == "string") {
+        netinfo.mapTitle = json.mapTitle;
       }
     });
 

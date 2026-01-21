@@ -5,18 +5,19 @@ var HostDataChannel = require("../netgame/datach.js");
 var WSErrorCodes = require("./errors.js");
 var wss = new ws.WebSocketServer({
   noServer: true,
-  clientTracking: false,
+  ...config.WebsocketConfig,
 });
 
 function handleUpgrade(request, socket, head) {
   var url = decodeURIComponent(request.url);
   var urlsplit = url.split("/");
 
-  if (urlsplit[1] == "listen") {
+  if (urlsplit[1] == "host") {
     wss.handleUpgrade(request, socket, head, function done(ws) {
       handleGhost(ws);
       wss.emit("connection", ws, request);
-      var netgame = new UDPNetgame(ws, request);
+      var isPublic = urlsplit[2] == "public";
+      var netgame = new UDPNetgame(ws, request, isPublic);
     });
     return;
   }

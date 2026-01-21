@@ -3,12 +3,13 @@ var NetBin = require("../netbin/");
 var HostDataChannel = require("./datach.js");
 var WSErrorCodes = require("../websocket/errors.js");
 var netgames = {};
+var config = require("../config.js");
 
 var { handleGhost } = require("../websocket/ghost.js");
 var ws = require("ws");
 var wss = new ws.WebSocketServer({
   noServer: true,
-  clientTracking: false,
+  ...config.WebsocketConfig,
 });
 
 class UDPNetgame {
@@ -55,11 +56,12 @@ class UDPNetgame {
     });
   }
 
-  constructor(hostws, request) {
+  constructor(hostws, request, public = false) {
     this.active = true;
     this.url = UDPNetgame.generateURL(request);
     netgames[this.url] = this;
     this.host = hostws;
+    this.public = public;
     this.connections = {};
 
     this.initHostSocket();

@@ -14,10 +14,17 @@ class PublicNetgame {
 
 class PublicNetGameManager {
   static listPublicNetgames() {
+    var output = [];
     var keys = Object.keys(publicNetgames);
-    for (var key of keys) {
-      //if ()
+    for (var url of keys) {
+      var netinfo = publicNetgames[url];
+      output.push({
+        url,
+        name: netinfo.name,
+      });
     }
+
+    return output;
   }
 
   static registerPublic(url, info) {

@@ -1,5 +1,6 @@
 var { serveStatic, setCorsHeaders } = require("../serve");
 var config = require("../config.js");
+var { PublicManager } = require("../netgame");
 var URL = require("url");
 
 function onHttpRequest(req, res) {
@@ -14,8 +15,12 @@ function onHttpRequest(req, res) {
         status: "online",
         name: config.name,
         description: config.description,
-      }),
+      })
     );
+    return;
+  }
+  if (urlsplit[1] == "public") {
+    res.end(JSON.stringify(PublicManager.listPublicNetgames()));
     return;
   }
 

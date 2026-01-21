@@ -7,6 +7,7 @@ var config = require("../config.js");
 
 var { handleGhost } = require("../websocket/ghost.js");
 var ws = require("ws");
+var PublicManager = require("./public.js");
 var wss = new ws.WebSocketServer({
   noServer: true,
   ...config.WebsocketConfig,
@@ -63,6 +64,10 @@ class UDPNetgame {
     this.host = hostws;
     this.isPublic = isPublic;
     this.connections = {};
+
+    if (isPublic) {
+      this.netinfo = PublicManager.registerPublic(this.url);
+    }
 
     this.initHostSocket();
   }
@@ -146,6 +151,9 @@ class UDPNetgame {
       return;
     }
     delete netgames[this.url];
+    if (this.isPublic) {
+      PublicManager.unlistPublic(this.url);
+    }
     this.closeClients();
     this.active = false;
     this.url = "";
@@ -164,14 +172,30 @@ class UDPNetgame {
     var { host } = this;
     this.sendUrl();
 
+    host.on("message", (data) => {
+      if (!_this.isPublic) {
+        return;
+      }
+      try {
+        var json = JSON.parse(data.toString());
+      } catch (e) {
+        if (config.DEBUG_BAD_MESSAGE) {
+          console.log(e);
+        }
+        return;
+      }
+
+      var netinfo = _this.netinfo;
+
+      if (typeof json.name == "string") {
+        netinfo.name = json.name;
+      }
+    });
+
     host.on("close", () => {
       _this.close();
       _this.host = null;
     });
-  }
-
-  get pongSpeed() {
-    return this.host._pongspeed;
   }
 }
 

@@ -25,7 +25,15 @@ class PublicNetGameManager {
       url,
       info.name || config.PUBLIC_SERVER_DEFAULT_NAME
     );
-    return;
+    return netinfo;
+  }
+
+  static unlistPublic(url) {
+    var netinfo = publicNetgames[url];
+    if (!netinfo) {
+      return;
+    }
+    netinfo.unlist();
   }
 }
 

@@ -39,6 +39,7 @@ class PublicNetGameManager {
         map: netinfo.map,
         mapTitle: netinfo.mapTitle,
         ingamePlayers: netinfo.ingamePlayers,
+        playerNames: netinfo.playerNames,
       });
     }
 

@@ -16,7 +16,7 @@ module.exports = {
       zlibDeflateOptions: {
         chunkSize: 16 * 1024, // 16KB (Higher is better for CPU than 1024)
         memLevel: 5, // Balance between memory usage and speed
-        level: 1, // CRITICAL: 1 = Fastest compression, least CPU
+        level: 0,
       },
       zlibInflateOptions: {
         chunkSize: 16 * 1024, // Match default to avoid excessive allocations

@@ -2,8 +2,13 @@ var config = require("../config.js");
 var publicNetgames = {};
 
 class PublicNetgame {
-  constructor(url, name, netgame) {
+  constructor(url, name) {
+    this.url = url;
     this.name = name;
+  }
+
+  unlist() {
+    delete publicNetgames[this.url];
   }
 }
 

@@ -169,6 +169,10 @@ class UDPNetgame {
       _this.host = null;
     });
   }
+
+  get pongSpeed() {
+    return this.host._pongspeed;
+  }
 }
 
 module.exports = {

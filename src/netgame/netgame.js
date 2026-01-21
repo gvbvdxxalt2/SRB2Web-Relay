@@ -190,6 +190,9 @@ class UDPNetgame {
       if (typeof json.name == "string") {
         netinfo.name = json.name;
       }
+      if (typeof json.mapName == "string") {
+        netinfo.mapName = json.mapName;
+      }
     });
 
     host.on("close", () => {

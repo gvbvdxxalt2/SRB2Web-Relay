@@ -5,6 +5,7 @@ class PublicNetgame {
   constructor(url) {
     this.url = url;
     this.name = config.PUBLIC_SERVER_DEFAULT_NAME;
+    this.mapName = "";
 
     publicNetgames[this.url] = this; //Register it
   }
@@ -23,6 +24,7 @@ class PublicNetGameManager {
       output.push({
         url,
         name: netinfo.name,
+        mapName: netinfo.mapName,
       });
     }
 

@@ -3,6 +3,7 @@ var { handleGhost } = require("./ghost.js");
 var { UDPNetgame } = require("../netgame/");
 var HostDataChannel = require("../netgame/datach.js");
 var WSErrorCodes = require("./errors.js");
+var config = require("../config.js");
 var wss = new ws.WebSocketServer({
   noServer: true,
   ...config.WebsocketConfig,

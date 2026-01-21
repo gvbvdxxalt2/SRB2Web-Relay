@@ -56,12 +56,12 @@ class UDPNetgame {
     });
   }
 
-  constructor(hostws, request, public = false) {
+  constructor(hostws, request, isPublic = false) {
     this.active = true;
     this.url = UDPNetgame.generateURL(request);
     netgames[this.url] = this;
     this.host = hostws;
-    this.public = public;
+    this.isPublic = isPublic;
     this.connections = {};
 
     this.initHostSocket();

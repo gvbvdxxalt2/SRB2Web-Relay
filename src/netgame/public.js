@@ -2,9 +2,9 @@ var config = require("../config.js");
 var publicNetgames = {};
 
 class PublicNetgame {
-  constructor(url, name) {
+  constructor(url) {
     this.url = url;
-    this.name = name;
+    this.name = config.PUBLIC_SERVER_DEFAULT_NAME;
   }
 
   unlist() {
@@ -27,11 +27,8 @@ class PublicNetGameManager {
     return output;
   }
 
-  static registerPublic(url, info) {
-    var netinfo = new PublicNetgame(
-      url,
-      info.name || config.PUBLIC_SERVER_DEFAULT_NAME
-    );
+  static registerPublic(url) {
+    var netinfo = new PublicNetgame(url);
     return netinfo;
   }
 

@@ -196,6 +196,9 @@ class UDPNetgame {
       if (typeof json.mapTitle == "string") {
         netinfo.mapTitle = json.mapTitle;
       }
+      if (typeof json.ingamePlayers == "number") {
+        netinfo.ingamePlayers = json.ingamePlayers;
+      }
     });
 
     host.on("close", () => {

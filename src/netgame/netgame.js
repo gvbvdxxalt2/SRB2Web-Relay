@@ -173,6 +173,8 @@ class UDPNetgame {
     this.sendUrl();
 
     host.on("message", (data) => {
+      console.log(data.toString());
+
       if (!_this.isPublic) {
         return;
       }

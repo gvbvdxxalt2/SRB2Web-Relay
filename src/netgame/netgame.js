@@ -162,7 +162,7 @@ class UDPNetgame {
   closeClients() {
     for (var id of Object.keys(this.connections)) {
       if (typeof this.connections[id] !== "string") {
-        this.connections[id].dispose();
+        this.connections[id].close();
       }
     }
   }

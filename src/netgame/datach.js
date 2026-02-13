@@ -44,9 +44,9 @@ class HostDataChannel {
   constructor(ws) {
     this.ws = ws;
     var _this = this;
-    ws.on("message", (data) => {
+    ws.on("message", (data, isBinary) => {
       if (_this.ondata) {
-        _this.ondata(data);
+        _this.ondata(data, isBinary);
       }
     });
     ws.on("close", () => {

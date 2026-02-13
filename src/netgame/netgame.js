@@ -104,14 +104,14 @@ class UDPNetgame {
           }
         };
 
-        ch.ondata = function (data) {
+        ch.ondata = function (data, isBinary) {
           //Host sending to connection.
-          ws.send(data);
+          ws.send(isBinary ? data : data.toString());
         };
 
-        ws.on("message", (data) => {
+        ws.on("message", (data, isBinary) => {
           //Connection sending to host.
-          ch.send(data);
+          ch.send(isBinary ? data : data.toString());
         });
 
         ws.send(JSON.stringify({ ready: true }));

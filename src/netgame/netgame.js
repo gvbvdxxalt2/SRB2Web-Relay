@@ -202,6 +202,9 @@ class UDPNetgame {
       if (typeof json.playerNames == "string") {
         netinfo.updatePlayerNames(json.playerNames);
       }
+      if (typeof json.usesWebRTC == "boolean") {
+        netinfo.usesWebRTC = json.usesWebRTC;
+      }
     });
 
     host.on("close", () => {

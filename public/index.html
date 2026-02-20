@@ -1,71 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sonic Robo Blast 2 Web - Relay Netgame Server</title>
-  </head>
-  <body>
     <style>
       body {
         background: black;
-        font-family: arial;
+        font-family: Arial, sans-serif;
       }
       .centeredBox {
         position: fixed;
         top: 50%;
         left: 50%;
-        padding: 12px 12px;
+        padding: 20px 25px;
         background: white;
-        border-radius: 5px;
+        border-radius: 8px;
         transform: translate(-50%, -50%);
         text-align: center;
         max-height: 100svh;
-        max-width: 100svh;
-        overflow: scroll;
+        max-width: 90vw;
+        overflow: auto;
         box-sizing: border-box;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
       }
       button {
         cursor: pointer;
+        margin-left: 8px;
+        padding: 4px 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #0056b3;
       }
       .logo {
-        height: fit-content;
+        height: auto;
         width: 100%;
         max-width: 400px;
+        margin-bottom: 5px;
+      }
+      #relayUrl {
+        background: #f4f4f4;
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        font-style: normal;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+      .instructions {
+        margin: 15px 0;
+        color: #333;
+        line-height: 1.5;
       }
     </style>
+  </head>
+  <body>
     <div class="centeredBox">
-      <img src="srb2logo.png" class="logo" /><br />
-      <b>(Web version by gvbvdxx)</b>
-      <br />
-      <span
-        >Add this netgame relay server to SRB2Web by putting the relay address
-        below:</span
-      ><br />
-      <i id="relayUrl"></i>
-      <button id="copyButton">Copy</button><br />
-      <span>Connect to it, then you're good to go with netgames!</span>
+      <img src="srb2logo.png" alt="SRB2 Logo" class="logo" />
+      <div style="font-size: 0.9em; color: #555; margin-bottom: 20px;">
+        <b>Web port by gvbvdxx</b>
+      </div>
+      
+      <div class="instructions">
+        To host or join a netgame, copy the relay server address below and paste it into your SRB2Web network configuration:
+      </div>
+      
+      <div>
+        <span id="relayUrl"></span>
+        <button id="copyButton">Copy Address</button>
+      </div>
+      
+      <div class="instructions" style="font-weight: bold; color: #28a745;">
+        Once connected, you're ready to play online!
+      </div>
     </div>
 
     <script>
       var url = document.getElementById("relayUrl");
       var copyButton = document.getElementById("copyButton");
 
-      if (window.location.protocol.startsWith("https:")) {
-        url.textContent = window.location.host;
-      } else {
-        url.textContent = window.location.host;
-      }
+      // Set the text to the current domain/IP
+      url.textContent = window.location.host;
 
       async function copyClicked() {
         try {
           await navigator.clipboard.writeText(url.textContent);
-        } catch (e) {}
-        copyButton.textContent = "Copied!";
+          copyButton.textContent = "Copied!";
+          copyButton.style.backgroundColor = "#28a745"; // Turn green on success
+        } catch (e) {
+          console.error("Clipboard copy failed", e);
+          copyButton.textContent = "Error";
+          copyButton.style.backgroundColor = "#dc3545"; // Turn red on error
+        }
+        
         copyButton.onclick = null;
+        
         setTimeout(() => {
-          copyButton.textContent = "Copy";
+          copyButton.textContent = "Copy Address";
+          copyButton.style.backgroundColor = "#007bff"; // Reset to blue
           copyButton.onclick = copyClicked;
-        }, 1000);
+        }, 1500);
       }
+      
       copyButton.onclick = copyClicked;
     </script>
   </body>

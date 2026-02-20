@@ -1,1 +1,1 @@
-Public SRB2 Web port relay server.
+A dedicated web relay server built specifically for Gvbvdxx's SRB2web port. It acts as a bridge for players, allowing you to seamlessly host and connect to browser-based LAN netgames without the hassle of configuring router port forwarding.

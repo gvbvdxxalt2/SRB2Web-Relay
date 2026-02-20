@@ -1,7 +1,7 @@
 {
-  "title": "Node.js",
-  "description": "The official Node.js template by the CodeSandbox team",
-  "iconUrl": "https://raw.githubusercontent.com/codesandbox/sandbox-templates/main/node/.codesandbox/icon.png",
-  "tags": ["node", "javascript", "playground"],
+  "title": "SRB2Web-Relay",
+  "description": "A server for Gvbvdxx's port of Sonic Robo Blast 2 web.",
+  "iconUrl": "https://raw.githubusercontent.com/gvbvdxxalt2/SRB2Web-Relay/main/.codesandbox/icon.png",
+  "tags": ["node", "javascript", "srb2web", "gvbvdxx", "gvbvdxxalt2"],
   "published": true
 }

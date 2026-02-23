@@ -1,6 +1,11 @@
 var config = require("./config.js");
 
 function getIP(req) {
+  if (config.USE_CLOUDFLARE_CONNECTING_IP) {
+    if (req.headers['cf-connecting-ip']) {
+        return req.headers['cf-connecting-ip'];
+    }
+  }
   if (config.USE_X_FORWARDED_FOR) {
     var forwardedForHeader = req.headers["x-forwarded-for"];
     if (forwardedForHeader) {

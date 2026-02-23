@@ -6,6 +6,10 @@ This server helps SRB2web connect to other players' netgames and host web games.
 
 ---
 
+## Configuration
+
+Configuration files are at [`/config`](./config/)
+
 ## Setup
 
 Install dependencies:

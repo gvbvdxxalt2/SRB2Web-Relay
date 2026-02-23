@@ -1,5 +1,6 @@
 module.exports = {
   USE_X_FORWARDED_FOR: true, //Turn this off if you aren't proxying (port forward the relay server).
+  USE_CLOUDFLARE_CONNECTING_IP: false, //If you start using cloudflare with proxy, enable this so that it uses the IP header from that. 
 
   ON_RENDER_COM: true, //This makes the X_FORWARDED_FOR property work on render.com, .
 

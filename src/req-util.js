@@ -21,40 +21,26 @@ function isPrivateIp(ip) {
 }
 
 function getIP(req) {
-  // 1. HIGHEST PRIORITY: Cloudflare/Render verified headers
-  // Cloudflare is the most reliable because they strip fake headers from users.
-  const verifiedHeaders = ['cf-connecting-ip', 'true-client-ip'];
-  for (const header of verifiedHeaders) {
-    if (req.headers[header]) {
-      var headerString = "" + req.headers[header];
-      return headerString.trim();
+  // 1. Priority: The 'cf-connecting-ip' is provided by Render's edge.
+  // This is the "gold standard" and is very hard to spoof.
+  const cfIp = req.headers['cf-connecting-ip'];
+  if (cfIp) return cfIp.trim();
+
+  // 2. Fallback: Parse the X-Forwarded-For list.
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    // We split the list into an array of IPs.
+    const IPs = xff.split(',').map(ip => ip.trim());
+
+    // On Render, the user's real IP is ALWAYS the first one (index 0).
+    // The others are Render/Azure/Cloudflare proxies.
+    if (IPs.length > 0) {
+      return IPs[0]; 
     }
   }
 
-  // 2. SECOND PRIORITY: X-Forwarded-For
-  if (config.USE_X_FORWARDED_FOR) {
-    const forwarded = req.headers["x-forwarded-for"];
-    if (forwarded) {
-      const IPs = forwarded.split(",").map(ip => ip.trim());
-      
-      // FIX: Loop all the way to 0, but since Render can use public IPs 
-      // for proxies, on Render it's often safest to just take the FIRST IP
-      // in the list, as that is the original sender.
-      if (config.ON_RENDER_COM) {
-        return IPs[0]; 
-      }
-
-      // Fallback: Right-to-left search for non-private
-      for (let i = IPs.length - 1; i >= 0; i--) {
-        if (!isPrivateIp(IPs[i])) {
-          return IPs[i];
-        }
-      }
-    }
-  }
-
-  // 3. FINAL FALLBACK: Direct socket address
-  return ("" + req.socket.remoteAddress).replace(/^::ffff:/, '').trim();
+  // 3. Final Fallback: The direct connection IP (usually a proxy IP on Render)
+  return (req.socket.remoteAddress || "").replace(/^::ffff:/, '').trim();
 }
 
 module.exports = { getIP };

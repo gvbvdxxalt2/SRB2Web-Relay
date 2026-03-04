@@ -38,7 +38,7 @@ function getIP(req) {
     if (forwardedForHeader) {
       forwardedForHeader = forwardedForHeader.trim();
       if (config.ON_RENDER_COM) {
-        var IPString = "" + ipListHeader;
+        var IPString = "" + forwardedForHeader;
         var IPs = IPString.split(",").map((ip) => ip.trim());
         var i = IPs.length-1;
       	while (i > 0) {

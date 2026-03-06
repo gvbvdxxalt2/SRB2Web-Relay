@@ -10,6 +10,7 @@ class PublicNetgame {
     this.ingamePlayers = 0;
     this.playerNames = [];
     this.usesWebRTC = false;
+    this.maxPlayers = null;
 
     publicNetgames[this.url] = this; //Register it
   }
@@ -42,6 +43,7 @@ class PublicNetGameManager {
         ingamePlayers: netinfo.ingamePlayers,
         playerNames: netinfo.playerNames,
         usesWebRTC: netinfo.usesWebRTC,
+        maxPlayers: +netinfo.maxPlayers || 0,
       });
     }
 

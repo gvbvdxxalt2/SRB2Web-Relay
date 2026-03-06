@@ -205,6 +205,10 @@ class UDPNetgame {
       if (typeof json.usesWebRTC == "boolean") {
         netinfo.usesWebRTC = json.usesWebRTC;
       }
+      if (typeof json.maxPlayers == "number") {
+        netinfo.maxPlayers = json.maxPlayers;
+      }
+      
     });
 
     host.on("close", () => {

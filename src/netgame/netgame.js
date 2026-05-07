@@ -152,7 +152,9 @@ class UDPNetgame {
     }
     delete netgames[this.url];
     if (this.isPublic) {
-      PublicManager.unlistPublic(this.url);
+      if (this.netinfo) { //Slightly safer than assuming it exists, in case something went wrong during registration.
+        this.netinfo.unlist();
+      }
     }
     this.closeClients();
     this.active = false;

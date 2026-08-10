@@ -76,10 +76,11 @@ class UDPNetgame {
   static CLOSING_NETGAME = "closing";
 
   handleJoin(request, socket, head) {
-    var id = 1;
-    while (this.connections[id]) {
-      id += 1;
+    var idnum = 1;
+    while (typeof this.connections[idnum] !== "undefined") {
+      idnum += 1;
     }
+    var id = idnum;
     this.connections[id] = UDPNetgame.HANDLING_CONNECTION;
 
     var { host } = this;
@@ -107,6 +108,7 @@ class UDPNetgame {
           ip: util.getIP(request),
         })
       );
+      console.log(`Connected with id ${id}.`);
 
       handleGhost(ws);
       wss.emit("connection", ws, request);

@@ -1,6 +1,6 @@
 var util = require("../req-util.js");
 var NetBin = require("../netbin/");
-var HostDataChannel = require("./datach.js");
+//var HostDataChannel = require("./datach.js");
 var WSErrorCodes = require("../websocket/errors.js");
 var netgames = {};
 var config = require("../config.js");
@@ -73,6 +73,7 @@ class UDPNetgame {
   }
 
   static HANDLING_CONNECTION = "handling";
+  static CLOSING_NETGAME = "closing";
 
   handleJoin(request, socket, head) {
     var id = 1;
@@ -84,53 +85,60 @@ class UDPNetgame {
     var { host } = this;
     var _this = this;
     wss.handleUpgrade(request, socket, head, function done(ws) {
-      //Handle data channel.
-      function handleChannel(ch) {
+      
+      if (_this.connections[id] == UDPNetgame.CLOSING_NETGAME) {
+        //Netgame already ended/kicked so just close the connection once it's ready.
+        
         handleGhost(ws);
         wss.emit("connection", ws, request);
-        if (!ch) {
-          ws.close(WSErrorCodes.HOST_CONNECT_TIMEOUT);
-          delete _this.connections[id];
-          return;
-        }
-        _this.connections[id] = ws;
 
-        var didClose = false;
-
-        ch.onclose = function () {
-          delete _this.connections[id];
-          if (!didClose) {
+        setTimeout(() => {
+          try{
             ws.close();
-          }
-        };
-
-        ch.ondata = function (data, isBinary) {
-          //Host sending to connection.
-          ws.send(isBinary ? data : data.toString());
-        };
-
-        ws.on("message", (data, isBinary) => {
-          //Connection sending to host.
-          ch.send(isBinary ? data : data.toString());
-        });
-
-        ws.send(JSON.stringify({ ready: true }));
-
-        ws.on("close", () => {
-          didClose = true;
-          ch.dispose(); //Calls onclose function.
-        });
+          }catch(e){}
+        },100);
+        return;
       }
-      //Tell the host to contact and respond to the incoming connection.
-      var code = HostDataChannel.requestDataChannel(handleChannel);
+
       host.send(
         JSON.stringify({
-          method: "incoming",
-          channel: code,
+          method: "connection",
           id,
           ip: util.getIP(request),
         })
       );
+
+      handleGhost(ws);
+      wss.emit("connection", ws, request);
+
+      ws.on("close", () => {
+        _this.connections[id] = "";
+        delete _this.connections[id];
+        try{
+          host.send(
+            JSON.stringify({
+              method: "disconnect",
+              id,
+            })
+          );
+        }catch(e){}
+      });
+      
+      ws.on("message", (data, isBinary) => {
+        if (isBinary) {
+          ws.close(WSErrorCodes.BINARY_NOT_SUPPORTED);
+          return;
+        }
+        host.send(
+          JSON.stringify({
+            method: "message",
+            id,
+            data: ""+data,
+          })
+        );
+      });
+
+      _this.connections[id] = ws;
     });
   }
 
@@ -165,6 +173,10 @@ class UDPNetgame {
     for (var id of Object.keys(this.connections)) {
       if (typeof this.connections[id] !== "string") {
         this.connections[id].close();
+        this.connections[id] = "";
+        delete this.connections[id];
+      } else {
+        this.connections[id] = UDPNetgame.CLOSING_NETGAME; //This closes the connection after connecting to avoid silent connections.
       }
     }
   }
@@ -174,43 +186,59 @@ class UDPNetgame {
     var { host } = this;
     this.sendUrl();
 
-    host.on("message", (data) => {
-      if (!_this.isPublic) {
-        return;
-      }
+    host.on("message", (data, isBinary) => {
       try {
-        var json = JSON.parse(data.toString());
+        var json = JSON.parse(""+data);
       } catch (e) {
         if (config.DEBUG_BAD_MESSAGE) {
-          console.log(e);
+          console.log("[WARNING]: ",e);
         }
         return;
       }
 
-      var netinfo = _this.netinfo;
-
-      if (typeof json.name == "string") {
-        netinfo.name = json.name;
-      }
-      if (typeof json.map == "string") {
-        netinfo.map = json.map;
-      }
-      if (typeof json.mapTitle == "string") {
-        netinfo.mapTitle = json.mapTitle;
-      }
-      if (typeof json.ingamePlayers == "number") {
-        netinfo.ingamePlayers = json.ingamePlayers;
-      }
-      if (typeof json.playerNames == "string") {
-        netinfo.updatePlayerNames(json.playerNames);
-      }
-      if (typeof json.usesWebRTC == "boolean") {
-        netinfo.usesWebRTC = json.usesWebRTC;
-      }
-      if (typeof json.maxPlayers == "number") {
-        netinfo.maxPlayers = json.maxPlayers;
+      if (json.update && _this.isPublic) { //Updating netgame information.
+        var netinfo = _this.netinfo;
+        netinfo.isAlive = true; //Usually an update message means we're alive so this netgame can be listed.
+        
+        if (typeof json.name == "string") {
+          netinfo.name = json.name;
+        }
+        if (typeof json.map == "string") {
+          netinfo.map = json.map;
+        }
+        if (typeof json.mapTitle == "string") {
+          netinfo.mapTitle = json.mapTitle;
+        }
+        if (typeof json.ingamePlayers == "number") {
+          netinfo.ingamePlayers = json.ingamePlayers;
+        }
+        if (typeof json.playerNames == "string") {
+          netinfo.updatePlayerNames(json.playerNames);
+        }
+        if (typeof json.maxPlayers == "number") {
+          netinfo.maxPlayers = json.maxPlayers;
+        }
+        return;
       }
       
+      if (typeof json.data == "string" && typeof json.id == "number") { //Sending message to an websocket connection.
+        var socket = _this.connections[json.id];
+        if (!socket) {
+          return;
+        }
+        socket.send(json.data);
+        return;
+      }
+
+      if (json.disconnect && typeof json.id == "number") { //Disconnect a websocket.
+        var socket = _this.connections[json.id];
+        if (!socket) {
+          return;
+        }
+        try{
+        socket.close();
+        }catch(e){}
+      }
     });
 
     host.on("close", () => {

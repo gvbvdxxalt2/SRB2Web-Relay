@@ -1,7 +1,7 @@
 var ws = require("ws");
 var { handleGhost } = require("./ghost.js");
 var { UDPNetgame } = require("../netgame/");
-var HostDataChannel = require("../netgame/datach.js");
+//var HostDataChannel = require("../netgame/datach.js");
 var WSErrorCodes = require("./errors.js");
 var config = require("../config.js");
 var wss = new ws.WebSocketServer({
@@ -19,15 +19,6 @@ function handleUpgrade(request, socket, head) {
       wss.emit("connection", ws, request);
       var isPublic = urlsplit[2] == "public";
       var netgame = new UDPNetgame(ws, request, isPublic);
-    });
-    return;
-  }
-
-  if (urlsplit[1] == "listench") {
-    wss.handleUpgrade(request, socket, head, function done(ws) {
-      handleGhost(ws);
-      wss.emit("connection", ws, request);
-      HostDataChannel.handleWsOpenChannel(ws, urlsplit[2]);
     });
     return;
   }

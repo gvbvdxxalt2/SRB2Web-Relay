@@ -4,6 +4,7 @@ class WSErrorCodes {
   static DATA_CHANNEL_INVALID = 4001;
   static HOST_CONNECT_TIMEOUT = 4002;
   static NETGAME_NOT_FOUND = 4003;
+  static BINARY_NOT_SUPPORTED = 4010;
 }
 
 module.exports = WSErrorCodes;

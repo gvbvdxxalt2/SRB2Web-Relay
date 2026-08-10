@@ -13,4 +13,4 @@ server.listen(currentPort);
 var { handleUpgrade } = require("./websocket");
 server.on("upgrade", handleUpgrade);
 
-console.log(`Relay server is now active on port ${currentPort}`);
+console.log(`[INFO]: Relay server is now active on port ${currentPort}`);

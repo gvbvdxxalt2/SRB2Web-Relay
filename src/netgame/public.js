@@ -11,6 +11,7 @@ class PublicNetgame {
     this.playerNames = [];
     this.usesWebRTC = false;
     this.maxPlayers = null;
+    this.isAlive = false; //The host must send a update message to register it as alive.
 
     publicNetgames[this.url] = this; //Register it
   }
@@ -30,21 +31,36 @@ class PublicNetgame {
 }
 
 class PublicNetGameManager {
+  static countPublicNetgames() {
+    var aliveCount = 0;
+    var keys = Object.keys(publicNetgames);
+    for (var url of keys) {
+      var netinfo = publicNetgames[url];
+      if (netinfo.isAlive) {
+        aliveCount += 1;
+      }
+    }
+    return {
+      count: aliveCount,
+    };
+  }
+
   static listPublicNetgames() {
     var output = [];
     var keys = Object.keys(publicNetgames);
     for (var url of keys) {
       var netinfo = publicNetgames[url];
-      output.push({
-        url,
-        name: netinfo.name,
-        map: netinfo.map,
-        mapTitle: netinfo.mapTitle,
-        ingamePlayers: netinfo.ingamePlayers,
-        playerNames: netinfo.playerNames,
-        usesWebRTC: netinfo.usesWebRTC,
-        maxPlayers: +netinfo.maxPlayers || 0,
-      });
+      if (netinfo.isAlive) {
+        output.push({
+          url,
+          name: netinfo.name,
+          map: netinfo.map,
+          mapTitle: netinfo.mapTitle,
+          ingamePlayers: netinfo.ingamePlayers,
+          playerNames: netinfo.playerNames,
+          maxPlayers: +netinfo.maxPlayers || 0,
+        });
+      }
     }
 
     return output;

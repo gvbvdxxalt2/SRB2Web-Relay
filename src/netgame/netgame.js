@@ -108,7 +108,6 @@ class UDPNetgame {
           ip: util.getIP(request),
         })
       );
-      console.log(`Connected with id ${id}.`);
 
       handleGhost(ws);
       wss.emit("connection", ws, request);

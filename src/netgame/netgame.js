@@ -231,6 +231,11 @@ class UDPNetgame {
         return;
       }
 
+      if (typeof json.ping == "boolean" && json.ping) {
+        host.send(JSON.stringify({ pong: true }));
+        return;
+      }
+
       if (json.disconnect && typeof json.id == "number") { //Disconnect a websocket.
         var socket = _this.connections[json.id];
         if (!socket) {

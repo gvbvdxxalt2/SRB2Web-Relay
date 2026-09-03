@@ -61,6 +61,8 @@ class PublicNetGameManager {
           ingamePlayers: netinfo.ingamePlayers,
           playerNames: netinfo.playerNames,
           maxPlayers: +netinfo.maxPlayers || 0,
+          gameID: netinfo.gameID,
+          gameName: netinfo.gameName
         });
       }
     }

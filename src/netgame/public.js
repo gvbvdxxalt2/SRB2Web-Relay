@@ -11,6 +11,8 @@ class PublicNetgame {
     this.playerNames = [];
     this.usesWebRTC = false;
     this.maxPlayers = null;
+    this.gameName = "(Unknown)";
+    this.gameID = null;
     this.isAlive = false; //The host must send a update message to register it as alive.
 
     publicNetgames[this.url] = this; //Register it
@@ -50,7 +52,7 @@ class PublicNetGameManager {
     var keys = Object.keys(publicNetgames);
     for (var url of keys) {
       var netinfo = publicNetgames[url];
-      if (netinfo.isAlive) {
+      if (netinfo.isAlive && netinfo.gameName && netinfo.gameID) {
         output.push({
           url,
           name: netinfo.name,

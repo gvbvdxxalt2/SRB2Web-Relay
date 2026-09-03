@@ -219,6 +219,12 @@ class UDPNetgame {
         if (typeof json.maxPlayers == "number") {
           netinfo.maxPlayers = json.maxPlayers;
         }
+        if (typeof json.gameName == "string") {
+          netinfo.gameName = json.gameName;
+        }
+        if (typeof json.gameID == "string") {
+          netinfo.gameID = json.gameID;
+        }
         return;
       }
       
